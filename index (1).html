@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IEC 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap');
+
+  :root {
+    --gold: #B8965A;
+    --gold-light: #D4B07A;
+    --dark: #1A1612;
+    --cream: #F5F0E8;
+    --cream-dark: #EDE6D6;
+    --text: #2C2520;
+    --muted: #8A7D70;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--dark);
+    padding: 20px 24px 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--gold);
+  }
+
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  header p {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .lang-bar {
+    background: var(--dark);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border-bottom: 1px solid #333;
+  }
+
+  .lang-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .lang-btn:hover { color: var(--cream); }
+  .lang-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .session-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--cream-dark);
+    border-bottom: 1px solid #D4C9B0;
+  }
+
+  .nav-arrow {
+    background: transparent;
+    border: 1px solid #C8B99A;
+    color: var(--muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .nav-arrow:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+  .nav-arrow:disabled { opacity: 0.3; cursor: default; }
+
+  .session-info { text-align: center; }
+  .session-info .session-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--text);
+  }
+  .session-info .session-counter {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  main { flex: 1; padding: 32px 24px; max-width: 600px; margin: 0 auto; width: 100%; }
+
+  .locked {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .lock-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border: 1.5px solid #C8B99A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 20px;
+  }
+
+  .locked h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .locked p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .content { animation: fadeIn 0.5s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .couple-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-light);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .condivisione-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--text);
+  }
+
+  .condivisione-text p { margin-bottom: 1.2em; }
+
+  .ornament {
+    text-align: center;
+    color: var(--gold);
+    font-size: 18px;
+    margin: 32px 0;
+    letter-spacing: 0.3em;
+  }
+
+  footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    border-top: 1px solid #D4C9B0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>IEC 2026</h1>
+  <p>International Encounter of Couples</p>
+</header>
+
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('it',this)">IT</button>
+  <button class="lang-btn" onclick="setLang('en',this)">EN</button>
+  <button class="lang-btn" onclick="setLang('es',this)">ES</button>
+  <button class="lang-btn" onclick="setLang('fr',this)">FR</button>
+</div>
+
+<div class="session-nav">
+  <button class="nav-arrow" id="prev-btn" onclick="changeSession(-1)" disabled>&#8592;</button>
+  <div class="session-info">
+    <div class="session-name" id="session-name">Condivisione 1</div>
+    <div class="session-counter" id="session-counter">1 di 3</div>
+  </div>
+  <button class="nav-arrow" id="next-btn" onclick="changeSession(1)">&#8594;</button>
+</div>
+
+<main id="main-content">
+  <div class="locked" id="locked-view">
+    <div class="lock-icon">&#128274;</div>
+    <h2>Sessione non ancora aperta</h2>
+    <p>Attendi che l'organizzatore apra questa condivisione.</p>
+  </div>
+  <div class="content" id="content-view" style="display:none">
+    <div class="couple-tag" id="couple-tag">Coppia</div>
+    <div class="condivisione-text" id="condivisione-text"></div>
+    <div class="ornament">&#10022; &#10022; &#10022;</div>
+  </div>
+</main>
+
+<footer>IEC 2026 &mdash; Retrouvaille</footer>
+
+<script>
+const sessions = [
+  {
+    name: { it: 'Condivisione luce', en: 'Light sharing', es: 'Compartir luz', fr: 'Partage lumière' },
+    couple: { it: 'Luca e Maria', en: 'Luca and Maria', es: 'Luca y Maria', fr: 'Luca et Maria' },
+    text: {
+      it: '<p>Quando ho capito quanto fosse importante ascoltare davvero mia moglie, ho sentito una pace che non provavo da anni. Non si trattava di trovare soluzioni, ma di essere presente.</p><p>Quella sera, mentre mi parlava, ho smesso di pensare a cosa rispondere e ho cominciato semplicemente ad ascoltare. Era la prima volta da tanto tempo.</p>',
+      en: '<p>When I realised how important it was to truly listen to my wife, I felt a peace I hadn\'t known in years. It wasn\'t about finding solutions — it was about being present.</p><p>That evening, as she spoke, I stopped thinking about what to reply and simply began to listen. It was the first time in a long while.</p>',
+      es: '<p>Cuando comprendí lo importante que era escuchar de verdad a mi esposa, sentí una paz que no había sentido en años. No se trataba de encontrar soluciones, sino de estar presente.</p><p>Esa noche, mientras ella hablaba, dejé de pensar en qué responder y simplemente comencé a escuchar. Era la primera vez en mucho tiempo.</p>',
+      fr: '<p>Quand j\'ai compris à quel point il était important d\'écouter vraiment ma femme, j\'ai ressenti une paix que je n\'avais pas connue depuis des années. Il ne s\'agissait pas de trouver des solutions, mais d\'être présent.</p><p>Ce soir-là, pendant qu\'elle parlait, j\'ai cessé de penser à ce que j\'allais répondre et j\'ai simplement commencé à écouter. C\'était la première fois depuis longtemps.</p>'
+    }
+  },
+  {
+    name: { it: 'Condivisione speranza', en: 'Hope sharing', es: 'Compartir esperanza', fr: 'Partage espoir' },
+    couple: { it: 'Marco e Anna', en: 'Marco and Anna', es: 'Marco y Anna', fr: 'Marco et Anna' },
+    text: {
+      it: '<p>La cosa più difficile per me è stata ammettere che avevo paura. Paura di non essere abbastanza, paura di perdere ciò che avevamo costruito insieme in tanti anni.</p><p>Ma quando l\'ho detto ad alta voce, qualcosa è cambiato. Mio marito mi ha preso la mano e non ha detto nulla. Non aveva bisogno di farlo.</p>',
+      en: '<p>The hardest thing for me was admitting I was afraid. Afraid of not being enough, afraid of losing what we had built together over so many years.</p><p>But when I said it out loud, something changed. My husband took my hand and said nothing. He didn\'t need to.</p>',
+      es: '<p>Lo más difícil para mí fue admitir que tenía miedo. Miedo de no ser suficiente, miedo de perder lo que habíamos construido juntos durante tantos años.</p><p>Pero cuando lo dije en voz alta, algo cambió. Mi marido tomó mi mano y no dijo nada. No necesitaba hacerlo.</p>',
+      fr: '<p>La chose la plus difficile pour moi a été d\'admettre que j\'avais peur. Peur de ne pas être suffisante, peur de perdre ce que nous avions construit ensemble pendant tant d\'années.</p><p>Mais quand je l\'ai dit à voix haute, quelque chose a changé. Mon mari a pris ma main et n\'a rien dit. Il n\'en avait pas besoin.</p>'
+    }
+  },
+  {
+    name: { it: 'Condivisione rinnovamento', en: 'Renewal sharing', es: 'Compartir renovación', fr: 'Partage renouveau' },
+    couple: { it: 'Pierre e Sophie', en: 'Pierre and Sophie', es: 'Pierre y Sophie', fr: 'Pierre et Sophie' },
+    text: {
+      it: '<p>Non dimenticherò mai quel momento in cui ho scelto di tornare. Non perché tutto fosse risolto, ma perché ho capito che l\'amore non è un sentimento che arriva e va.</p><p>È una scelta che si rinnova ogni giorno. Quel giorno ho scelto ancora lei. E lei ha scelto ancora me.</p>',
+      en: '<p>I will never forget the moment I chose to come back. Not because everything was resolved, but because I understood that love is not a feeling that comes and goes.</p><p>It is a choice renewed each day. That day I chose her again. And she chose me again.</p>',
+      es: '<p>Nunca olvidaré el momento en que elegí volver. No porque todo estuviera resuelto, sino porque comprendí que el amor no es un sentimiento que va y viene.</p><p>Es una elección que se renueva cada día. Ese día la elegí de nuevo. Y ella me eligió a mí.</p>',
+      fr: '<p>Je n\'oublierai jamais le moment où j\'ai choisi de revenir. Non pas parce que tout était résolu, mais parce que j\'ai compris que l\'amour n\'est pas un sentiment qui va et vient.</p><p>C\'est un choix qui se renouvelle chaque jour. Ce jour-là, je l\'ai choisie à nouveau. Et elle m\'a choisi à nouveau.</p>'
+    }
+  }
+];
+
+let currentSession = 0;
+let currentLang = 'it';
+const unlocked = [false, false, false];
+
+function setLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function changeSession(dir) {
+  const next = currentSession + dir;
+  if (next < 0 || next >= sessions.length) return;
+  currentSession = next;
+  document.getElementById('prev-btn').disabled = currentSession === 0;
+  document.getElementById('next-btn').disabled = currentSession === sessions.length - 1;
+  render();
+}
+
+function render() {
+  const s = sessions[currentSession];
+  const lang = currentLang;
+  document.getElementById('session-name').textContent = s.name[lang];
+  document.getElementById('session-counter').textContent = (currentSession + 1) + ' di ' + sessions.length;
+  if (unlocked[currentSession]) {
+    document.getElementById('locked-view').style.display = 'none';
+    document.getElementById('content-view').style.display = 'block';
+    document.getElementById('couple-tag').textContent = s.couple[lang];
+    document.getElementById('condivisione-text').innerHTML = s.text[lang];
+  } else {
+    document.getElementById('locked-view').style.display = 'block';
+    document.getElementById('content-view').style.display = 'none';
+    const msgs = {
+      it: ['Sessione non ancora aperta', 'Attendi che l\'organizzatore apra questa condivisione.'],
+      en: ['Session not yet open', 'Wait for the organiser to unlock this sharing.'],
+      es: ['Sesión aún no abierta', 'Espera a que el organizador abra este compartir.'],
+      fr: ['Session pas encore ouverte', 'Attendez que l\'organisateur ouvre ce partage.']
+    };
+    document.querySelector('.locked h2').textContent = msgs[lang][0];
+    document.querySelector('.locked p').textContent = msgs[lang][1];
+  }
+}
+
+function checkFirebase() {
+  try {
+    const data = JSON.parse(localStorage.getItem('iec2026_state') || '{}');
+    sessions.forEach((_, i) => {
+      if (data['session_' + i]) unlocked[i] = true;
+    });
+    render();
+  } catch(e) {}
+}
+
+setInterval(checkFirebase, 3000);
+checkFirebase();
+</script>
+</body>
+</html>
