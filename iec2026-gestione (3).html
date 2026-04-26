@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IEC 2026 — Gestione</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;font-weight:300;background:#F5F0E8;color:#2C2520;min-height:100vh}
+header{background:#1A1612;padding:20px 24px;text-align:center;border-bottom:2px solid #B8965A}
+header h1{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#F5F0E8;letter-spacing:.15em;text-transform:uppercase}
+header p{font-size:11px;color:#B8965A;letter-spacing:.2em;text-transform:uppercase;margin-top:4px}
+.container{max-width:700px;margin:0 auto;padding:24px 20px}
+#login-screen{text-align:center;padding:60px 20px}
+#login-screen h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;margin-bottom:8px}
+#login-screen p{font-size:13px;color:#8A7D70;margin-bottom:24px}
+.login-box{background:white;border:1px solid #D4C9B0;border-radius:8px;padding:24px;max-width:360px;margin:0 auto}
+.login-box label{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8A7D70;margin-bottom:8px;text-align:left}
+.login-row{display:flex;gap:8px}
+.login-row input{flex:1;font-size:14px;padding:10px 14px;border:1px solid #D4C9B0;border-radius:6px;background:#F5F0E8;color:#2C2520;outline:none;font-family:'Jost',sans-serif}
+.btn-primary{font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;background:#1A1612;color:#F5F0E8;border:none;border-radius:6px;cursor:pointer}
+.btn-primary:hover{opacity:.85}
+.err{font-size:12px;color:#8B2E2E;margin-top:8px;min-height:16px;text-align:left}
+#gestione{display:none}
+#gestione.visible{display:block}
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.top-bar h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300}
+.btn-add{font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;background:#1A1612;color:#F5F0E8;border:none;border-radius:6px;cursor:pointer}
+.hint{font-size:12px;color:#8A7D70;margin-bottom:16px;padding:10px 14px;background:#EDE6D6;border-radius:6px;line-height:1.6}
+.session-card{background:white;border:1px solid #D4C9B0;border-radius:8px;padding:16px;margin-bottom:12px}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card-num{font-family:'Cormorant Garamond',serif;font-size:22px;color:#B8965A;min-width:30px}
+.card-header-info{flex:1}
+.card-header-info input{width:100%;font-size:14px;font-weight:500;border:none;background:transparent;color:#2C2520;outline:none;font-family:'Jost',sans-serif;padding:2px 0;border-bottom:1px solid transparent}
+.card-header-info input:focus{border-bottom-color:#B8965A}
+.card-header-info .sub-input{font-size:12px;color:#8A7D70;margin-top:4px}
+.btn-delete{background:transparent;border:none;color:#C0A898;cursor:pointer;font-size:16px;padding:4px}
+.btn-delete:hover{color:#8B2E2E}
+.row-inputs{display:flex;gap:10px;margin-bottom:12px}
+.row-inputs>div{flex:1}
+.row-inputs label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#8A7D70;display:block;margin-bottom:4px}
+.row-inputs input{width:100%;font-size:13px;padding:8px 12px;border:1px solid #D4C9B0;border-radius:6px;background:#F5F0E8;color:#2C2520;outline:none;font-family:'Jost',sans-serif}
+.row-inputs input:focus{border-color:#B8965A}
+.lang-tabs{display:flex;gap:0;border-bottom:1px solid #D4C9B0;margin-bottom:12px;flex-wrap:wrap}
+.lang-tab{font-size:11px;font-weight:500;letter-spacing:.1em;padding:6px 14px;cursor:pointer;border:none;background:transparent;color:#8A7D70;border-bottom:2px solid transparent;font-family:'Jost',sans-serif;text-transform:uppercase}
+.lang-tab.active{color:#B8965A;border-bottom-color:#B8965A}
+.text-area{width:100%;min-height:120px;font-size:14px;line-height:1.6;padding:10px;border:1px solid #D4C9B0;border-radius:6px;background:#F5F0E8;color:#2C2520;font-family:'Cormorant Garamond',serif;resize:vertical;outline:none}
+.text-area:focus{border-color:#B8965A}
+.lang-hint{font-size:11px;color:#B8965A;margin-bottom:6px}
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:#1A1612;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.save-bar p{font-size:12px;color:#B8965A}
+.btn-save{font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;background:#B8965A;color:white;border:none;border-radius:6px;cursor:pointer}
+.saved-msg{font-size:12px;color:#4A9970;margin-right:12px;display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>IEC 2026</h1>
+  <p>Gestione Condivisioni</p>
+</header>
+
+<div class="container">
+  <div id="login-screen">
+    <h2>Accesso gestione</h2>
+    <p>Inserisci il codice per modificare le condivisioni</p>
+    <div class="login-box">
+      <label>Codice admin</label>
+      <div class="login-row">
+        <input type="password" id="code-input" placeholder="Codice..." onkeydown="if(event.key==='Enter')login()"/>
+        <button class="btn-primary" onclick="login()">Entra</button>
+      </div>
+      <div class="err" id="login-err"></div>
+    </div>
+  </div>
+
+  <div id="gestione">
+    <div class="hint">
+      ✏️ Scrivi il testo in <strong>italiano</strong> — poi aggiungi le traduzioni nelle altre lingue cliccando IT / EN / ES / FR / PT. Clicca <strong>Salva tutto</strong> quando hai finito.
+    </div>
+    <div class="top-bar">
+      <h2>Le tue condivisioni</h2>
+      <button class="btn-add" onclick="addSession()">+ Aggiungi</button>
+    </div>
+    <div id="sessions-list"></div>
+    <div style="height:70px"></div>
+  </div>
+</div>
+
+<div class="save-bar" id="save-bar" style="display:none">
+  <p>Ricorda di salvare le modifiche</p>
+  <div style="display:flex;align-items:center">
+    <span class="saved-msg" id="saved-msg">✓ Salvato!</span>
+    <button class="btn-save" onclick="saveAll()">Salva tutto</button>
+  </div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDJF0i2Zz0drtFGRsG070I8bWzO3k3mYSo",
+  authDomain: "iec2026.firebaseapp.com",
+  databaseURL: "https://iec2026-default-rtdb.firebaseio.com",
+  projectId: "iec2026",
+  storageBucket: "iec2026.firebasestorage.app",
+  messagingSenderId: "213629198869",
+  appId: "1:213629198869:web:d9629490b7d5c44490e41c"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const ADMIN_CODE = 'admin2026';
+
+let sessions = [];
+let activeLangs = {};
+
+function login() {
+  const v = document.getElementById('code-input').value.trim();
+  if (v === ADMIN_CODE) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('gestione').classList.add('visible');
+    document.getElementById('save-bar').style.display = 'flex';
+    loadSessions();
+  } else {
+    document.getElementById('login-err').textContent = 'Codice non corretto.';
+  }
+}
+
+function loadSessions() {
+  db.ref('condivisioni').once('value', function(snap) {
+    const data = snap.val();
+    if (data && Array.isArray(data)) {
+      sessions = data;
+    } else {
+      sessions = [{orario:'',sezione:'',titolo:'Prima condivisione',coppia:'',it:'',en:'',es:'',fr:'',pt:''}];
+    }
+    renderSessions();
+  });
+}
+
+function renderSessions() {
+  const list = document.getElementById('sessions-list');
+  list.innerHTML = '';
+  sessions.forEach((s, i) => {
+    if (!activeLangs[i]) activeLangs[i] = 'it';
+    const lang = activeLangs[i];
+    const isIT = lang === 'it';
+    const hint = isIT ? '' : '<div class="lang-hint">💡 Puoi incollare qui la traduzione in ' + {en:'inglese',es:'spagnolo',fr:'francese',pt:'portoghese'}[lang] + '</div>';
+    list.innerHTML += `
+      <div class="session-card" id="card-${i}">
+        <div class="card-header">
+          <div class="card-num">${i+1}</div>
+          <div class="card-header-info">
+            <input value="${escH(s.titolo||'')}" placeholder="Titolo condivisione" oninput="sessions[${i}].titolo=this.value" />
+            <div class="sub-input">
+              <input value="${escH(s.coppia||'')}" placeholder="Nome coppia (es. Mario e Anna)" oninput="sessions[${i}].coppia=this.value" style="font-size:12px;color:#8A7D70"/>
+            </div>
+          </div>
+          <button class="btn-delete" onclick="deleteSession(${i})" title="Elimina">✕</button>
+        </div>
+        <div class="row-inputs">
+          <div>
+            <label>Orario</label>
+            <input value="${escH(s.orario||'')}" placeholder="es. 9:30" oninput="sessions[${i}].orario=this.value"/>
+          </div>
+          <div>
+            <label>Sezione giornata</label>
+            <input value="${escH(s.sezione||'')}" placeholder="es. Sabato mattina" oninput="sessions[${i}].sezione=this.value"/>
+          </div>
+        </div>
+        <div class="lang-tabs">
+          <button class="lang-tab ${lang==='it'?'active':''}" onclick="setLang(${i},'it')">IT 🇮🇹</button>
+          <button class="lang-tab ${lang==='en'?'active':''}" onclick="setLang(${i},'en')">EN 🇬🇧</button>
+          <button class="lang-tab ${lang==='es'?'active':''}" onclick="setLang(${i},'es')">ES 🇪🇸</button>
+          <button class="lang-tab ${lang==='fr'?'active':''}" onclick="setLang(${i},'fr')">FR 🇫🇷</button>
+          <button class="lang-tab ${lang==='pt'?'active':''}" onclick="setLang(${i},'pt')">PT 🇵🇹</button>
+        </div>
+        ${hint}
+        <textarea class="text-area" placeholder="${isIT?'Scrivi il testo in italiano...':'Incolla la traduzione qui...'}" oninput="sessions[${i}]['${lang}']=this.value">${escH(s[lang]||'')}</textarea>
+      </div>
+    `;
+  });
+}
+
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function setLang(i, lang) {
+  activeLangs[i] = lang;
+  renderSessions();
+}
+
+function addSession() {
+  sessions.push({orario:'',sezione:'',titolo:'Nuova condivisione',coppia:'',it:'',en:'',es:'',fr:'',pt:''});
+  renderSessions();
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.session-card');
+    cards[cards.length-1].scrollIntoView({behavior:'smooth'});
+  }, 100);
+}
+
+function deleteSession(i) {
+  if (confirm('Sei sicuro di voler eliminare questa condivisione?')) {
+    sessions.splice(i, 1);
+    delete activeLangs[i];
+    renderSessions();
+  }
+}
+
+function saveAll() {
+  db.ref('condivisioni').set(sessions, function(err) {
+    if (!err) {
+      const msg = document.getElementById('saved-msg');
+      msg.style.display = 'inline';
+      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    }
+  });
+}
+</script>
+</body>
+</html>

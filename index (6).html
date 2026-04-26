@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IEC 2026</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Jost:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;background:#F5F0E8;color:#2C2520}
+header{background:#1A1612;padding:20px 24px 16px;text-align:center;border-bottom:2px solid #B8965A}
+header h1{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:#F5F0E8;letter-spacing:.15em;text-transform:uppercase}
+header p{font-size:11px;color:#B8965A;letter-spacing:.2em;text-transform:uppercase;margin-top:4px}
+#admin-screen{display:none;background:#1A1612;min-height:100vh;padding:24px 20px}
+#admin-screen.visible{display:block}
+.admin-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:#F5F0E8;text-align:center;margin-bottom:4px}
+.admin-sub{font-size:11px;color:#B8965A;text-align:center;letter-spacing:.2em;text-transform:uppercase;margin-bottom:20px}
+.clock-bar{background:#111;border:1px solid #333;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.clock{font-family:'Cormorant Garamond',serif;font-size:28px;color:#F5F0E8}
+.next-label{font-size:11px;color:#B8965A;text-align:right;max-width:200px}
+.adivider{display:flex;align-items:center;gap:10px;margin:14px 0 8px}
+.adivider-line{flex:1;height:1px;background:#333}
+.adivider-text{font-size:10px;color:#666;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+.card{background:#222;border:1px solid #333;border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:all .2s}
+.card.open{background:#0D2B1F;border-color:#2D6A4F}
+.card-time{font-family:'Cormorant Garamond',serif;font-size:20px;color:#666;min-width:44px;flex-shrink:0}
+.card.open .card-time{color:#4A9970}
+.card-info{flex:1;min-width:0}
+.card-title{font-size:14px;color:#F5F0E8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-couple{font-size:11px;color:#666;margin-top:2px}
+.card.open .card-title{color:#7DCCA8}
+.card.open .card-couple{color:#4A9970}
+.badge{font-size:10px;padding:3px 10px;border-radius:20px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.badge-locked{background:#2A2A2A;color:#666}
+.badge-open{background:#0D2B1F;color:#4A9970;border:1px solid #2D6A4F}
+.btn-action{font-family:'Jost',sans-serif;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:7px 14px;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
+.btn-unlock{background:transparent;border:1px solid #444;color:#CCC}
+.btn-unlock:hover{border-color:#B8965A;color:#B8965A}
+.btn-close{background:transparent;border:1px solid #6B2F2F;color:#E07070}
+#admin-login{display:none}
+#admin-login.visible{display:block}
+.login-wrap{max-width:400px;margin:60px auto;padding:0 24px;text-align:center}
+.login-wrap h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#2C2520;margin-bottom:8px}
+.login-wrap p{font-size:13px;color:#8A7D70;margin-bottom:24px}
+.login-box{background:white;border:1px solid #D4C9B0;border-radius:8px;padding:24px}
+.login-box label{display:block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8A7D70;margin-bottom:8px;text-align:left}
+.login-row{display:flex;gap:8px}
+.login-row input{flex:1;font-family:'Jost',sans-serif;font-size:14px;padding:10px 14px;border:1px solid #D4C9B0;border-radius:6px;background:#F5F0E8;color:#2C2520;outline:none}
+.btn-login{font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;background:#1A1612;color:#F5F0E8;border:none;border-radius:6px;cursor:pointer}
+.err{font-size:12px;color:#8B2E2E;margin-top:8px;min-height:16px;text-align:left}
+#couple-screen{display:none}
+#couple-screen.visible{display:block}
+.lang-bar{background:#1A1612;display:flex;justify-content:center;flex-wrap:wrap}
+.lang-btn{background:transparent;border:none;color:#666;font-family:'Jost',sans-serif;font-size:11px;font-weight:500;letter-spacing:.15em;padding:10px 14px;cursor:pointer;text-transform:uppercase;border-bottom:2px solid transparent;transition:all .2s}
+.lang-btn:hover{color:#F5F0E8}
+.lang-btn.active{color:#B8965A;border-bottom-color:#B8965A}
+.session-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#EDE6D6;border-bottom:1px solid #D4C9B0}
+.nav-arrow{background:transparent;border:1px solid #C8B99A;color:#8A7D70;width:34px;height:34px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.nav-arrow:hover:not(:disabled){border-color:#B8965A;color:#B8965A}
+.nav-arrow:disabled{opacity:.3;cursor:default}
+.session-info{text-align:center}
+.session-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:#2C2520}
+.session-counter{font-size:10px;color:#8A7D70;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+main{padding:32px 24px;max-width:600px;margin:0 auto}
+.locked{text-align:center;padding:60px 20px}
+.lock-circle{width:52px;height:52px;margin:0 auto 16px;border:1.5px solid #C8B99A;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#8A7D70;font-size:22px}
+.locked h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#8A7D70;margin-bottom:8px}
+.locked p{font-size:13px;color:#8A7D70;line-height:1.6}
+.content{animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.couple-tag{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#B8965A;border:1px solid #D4B07A;padding:4px 12px;border-radius:20px;margin-bottom:20px}
+.cond-text{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;line-height:1.8;color:#2C2520;white-space:pre-wrap}
+.ornament{text-align:center;color:#B8965A;font-size:18px;margin:28px 0;letter-spacing:.3em}
+.loading{text-align:center;padding:40px;color:#8A7D70;font-size:13px}
+footer{text-align:center;padding:16px;font-size:11px;color:#8A7D70;letter-spacing:.1em;border-top:1px solid #D4C9B0}
+</style>
+</head>
+<body>
+<header><h1>IEC 2026</h1><p>International Encounter of Couples</p></header>
+
+<div id="admin-login"><div class="login-wrap"><h2>Organizzatore</h2><p>Inserisci il codice di accesso</p><div class="login-box"><label>Codice admin</label><div class="login-row"><input type="password" id="code-input" placeholder="Codice..." onkeydown="if(event.key==='Enter')loginAdmin()"/><button class="btn-login" onclick="loginAdmin()">Entra</button></div><div class="err" id="login-err"></div></div></div></div>
+
+<div id="admin-screen">
+  <div class="admin-title">Pannello Organizzatore</div>
+  <div class="admin-sub">IEC 2026 — Controllo sessioni</div>
+  <div class="clock-bar"><div class="clock" id="clock">--:--</div><div class="next-label" id="next-label">Caricamento...</div></div>
+  <div id="admin-list"></div>
+</div>
+
+<div id="couple-screen">
+  <div class="lang-bar">
+    <button class="lang-btn active" id="btn-it" onclick="setLang('it')">IT</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" id="btn-fr" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" id="btn-pt" onclick="setLang('pt')">PT</button>
+  </div>
+  <div class="session-nav">
+    <button class="nav-arrow" id="prev" onclick="changeSession(-1)" disabled>&#8592;</button>
+    <div class="session-info">
+      <div class="session-name" id="sname">...</div>
+      <div class="session-counter" id="scounter"></div>
+    </div>
+    <button class="nav-arrow" id="next" onclick="changeSession(1)" disabled>&#8594;</button>
+  </div>
+  <main id="main-area"><div class="loading">Caricamento...</div></main>
+  <footer>IEC 2026 &mdash; Retrouvaille</footer>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDJF0i2Zz0drtFGRsG070I8bWzO3k3mYSo",
+  authDomain: "iec2026.firebaseapp.com",
+  databaseURL: "https://iec2026-default-rtdb.firebaseio.com",
+  projectId: "iec2026",
+  storageBucket: "iec2026.firebasestorage.app",
+  messagingSenderId: "213629198869",
+  appId: "1:213629198869:web:d9629490b7d5c44490e41c"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const ADMIN_CODE = 'admin2026';
+
+let sessions = [];
+let states = [];
+let cur = 0;
+let currentLang = 'it';
+
+const lockedMsgs = {
+  it: ['Sessione non ancora aperta', 'Attendi che l\'organizzatore apra questa condivisione.'],
+  en: ['Session not yet open', 'Wait for the organiser to unlock this sharing.'],
+  es: ['Sesión aún no abierta', 'Espera a que el organizador abra este compartir.'],
+  fr: ['Session pas encore ouverte', 'Attendez que l\'organisateur ouvre ce partage.'],
+  pt: ['Sessão ainda não aberta', 'Aguarda que o organizador abra esta partilha.']
+};
+
+window.onload = function() {
+  if (window.location.search.includes('admin')) {
+    document.getElementById('admin-login').classList.add('visible');
+  } else {
+    document.getElementById('couple-screen').classList.add('visible');
+    db.ref('condivisioni').on('value', function(snap) {
+      const data = snap.val();
+      if (data && Array.isArray(data)) sessions = data;
+      if (states.length === 0) states = sessions.map(() => false);
+      renderCouple();
+    });
+    db.ref('sessioni').on('value', function(snap) {
+      const data = snap.val() || {};
+      states = sessions.map((_, i) => !!data['s' + i]);
+      renderCouple();
+    });
+  }
+};
+
+function loginAdmin() {
+  const v = document.getElementById('code-input').value.trim();
+  if (v === ADMIN_CODE) {
+    document.getElementById('admin-login').classList.remove('visible');
+    document.getElementById('admin-screen').classList.add('visible');
+    startClock();
+    db.ref('condivisioni').on('value', function(snap) {
+      const data = snap.val();
+      if (data && Array.isArray(data)) sessions = data;
+      if (states.length === 0) states = sessions.map(() => false);
+      renderAdmin();
+    });
+    db.ref('sessioni').on('value', function(snap) {
+      const data = snap.val() || {};
+      states = sessions.map((_, i) => !!data['s' + i]);
+      renderAdmin();
+      updateNext();
+    });
+  } else {
+    document.getElementById('login-err').textContent = 'Codice non corretto.';
+  }
+}
+
+function renderAdmin() {
+  const list = document.getElementById('admin-list');
+  if (!sessions.length) {
+    list.innerHTML = '<p style="color:#666;text-align:center;padding:20px">Nessuna condivisione. Aggiungile dal pannello gestione.</p>';
+    return;
+  }
+  let html = '';
+  let lastSez = '';
+  sessions.forEach((s, i) => {
+    if (s.sezione && s.sezione !== lastSez) {
+      html += `<div class="adivider"><div class="adivider-line"></div><div class="adivider-text">${s.sezione||''}</div><div class="adivider-line"></div></div>`;
+      lastSez = s.sezione;
+    }
+    const open = states[i] || false;
+    html += `<div class="card${open?' open':''}">
+      <div class="card-time">${s.orario||''}</div>
+      <div class="card-info"><div class="card-title">${s.titolo||'Condivisione '+(i+1)}</div><div class="card-couple">${s.coppia||''}</div></div>
+      <span class="badge ${open?'badge-open':'badge-locked'}">${open?'Aperta':'Bloccata'}</span>
+      <button class="btn-action ${open?'btn-close':'btn-unlock'}" onclick="toggle(${i})">${open?'Chiudi':'Sblocca'}</button>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function toggle(i) {
+  states[i] = !states[i];
+  db.ref('sessioni/s' + i).set(states[i]);
+}
+
+function updateNext() {
+  const locked = states.map((s, i) => !s ? i : -1).filter(i => i >= 0);
+  const el = document.getElementById('next-label');
+  if (el) el.textContent = locked.length === 0 ? 'Tutte aperte' : 'Prossima: ' + (sessions[locked[0]]?.titolo || '');
+}
+
+function startClock() {
+  function t() {
+    const n = new Date();
+    document.getElementById('clock').textContent = String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  }
+  t(); setInterval(t, 10000);
+}
+
+function setLang(l) {
+  currentLang = l;
+  ['it','en','es','fr','pt'].forEach(function(code) {
+    const btn = document.getElementById('btn-' + code);
+    if (btn) btn.className = 'lang-btn' + (code === l ? ' active' : '');
+  });
+  renderCouple();
+}
+
+function changeSession(d) {
+  const n = cur + d;
+  if (n < 0 || n >= sessions.length) return;
+  cur = n;
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').disabled = cur === sessions.length - 1;
+  renderCouple();
+}
+
+function renderCouple() {
+  if (!sessions.length) return;
+  const s = sessions[cur];
+  const l = currentLang;
+
+  document.getElementById('sname').textContent = s.titolo || ('Condivisione ' + (cur + 1));
+  document.getElementById('scounter').textContent = (cur + 1) + ' di ' + sessions.length;
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').disabled = cur === sessions.length - 1;
+
+  const area = document.getElementById('main-area');
+  const isOpen = states[cur] || false;
+
+  if (isOpen) {
+    // Legge il testo nella lingua selezionata
+    // Se la lingua non ha testo usa l'italiano come fallback
+    const testo = (s[l] && s[l].trim()) ? s[l] : (s['it'] || '');
+    area.innerHTML = '<div class="content"><div class="couple-tag">' + (s.coppia||'') + '</div><div class="cond-text">' + testo + '</div><div class="ornament">&#10022; &#10022; &#10022;</div></div>';
+  } else {
+    const m = lockedMsgs[l] || lockedMsgs['it'];
+    area.innerHTML = '<div class="locked"><div class="lock-circle">&#128274;</div><h2>' + m[0] + '</h2><p>' + m[1] + '</p></div>';
+  }
+}
+</script>
+</body>
+</html>
